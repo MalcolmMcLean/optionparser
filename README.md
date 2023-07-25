@@ -15,6 +15,8 @@ the calling program.
 Start the options parser. Pass it argc and argv from the arguments to 
 main, and a list of single character flags e.g. "lbw" for options
 "-l", "-b", -"w". You don't need to pass non-single character options.
+If there are no sibgle character flag options, pass NULL rather than
+the empty string.
 
 ### killoptions
 
@@ -66,15 +68,17 @@ names). You must call after parsing the options.
 
     int main(int argc, char *argv)
     {
-       int width; // an integer ootion
-       char name[32]; // a string option
-       double quality; // a floating point option 
+       // defaults if option not provided by user
+       int width = 256; // an integer ootion
+       char name[32] = "Fred"; // a string option
+       double quality = 0.0; // a floating point option 
        char *filename; // a file argument
 
-       OPTIONS *opt = options(argc, argv, "");
+       OPTIONS *opt = options(argc, argv, NULL);
        if (!opt)
           exit(EXIT_FAILURE);
 
+       // if the option is in fact required, check the return value
        opt_get(opt, "-width -w", "%d", &width);
        opt_get(opt, "-name", "%32s", name);
        opt_get(opt, "-quality -q", "%f", &quality);
