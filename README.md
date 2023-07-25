@@ -2,9 +2,9 @@
 A commandline options parser in portable ANSI C
 
 The option parser is designed to allow calling programmers
-to parse options cleanly and easily in the main() fucntion,
+to parse options cleanly and easily in the main() function,
 taking most of the error checking and parse logic out of
-the claling program.
+the calling program.
  
 ## Public functions
 
