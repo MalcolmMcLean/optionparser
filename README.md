@@ -57,7 +57,7 @@ This gets the number of arguments left after otions have been parsed.
 
 ### opt_arg
 
-   char *opt_arg(OPTIONS *opt, int index);
+    char *opt_arg(OPTIONS *opt, int index);
 
 Retrieves the commandline non-option argument (most frequently file 
 names). You must call after parsing the options.
