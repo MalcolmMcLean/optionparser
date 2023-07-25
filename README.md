@@ -55,7 +55,7 @@ report the error to the user.
 
 This gets the number of arguments left after otions have been parsed.
 
-###opt_arg
+### opt_arg
 
    char *opt_arg(OPTIONS *opt, int index);
 
