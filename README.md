@@ -16,7 +16,7 @@ Start the options parser. Pass it argc and argv from the arguments to
 main, and a list of single character flags e.g. "lbw" for options
 "-l", "-b", -"w". You don't need to pass non-single character options.
 
-###killoptions
+### killoptions
 
     void killoptions(OPTIONS *opt);
 
