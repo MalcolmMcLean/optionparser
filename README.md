@@ -28,14 +28,14 @@ Destroys the options object.
 
 Get an option. 
 
-name - "-option -o -opt -OPT" - list of alternative names
-fmt - "%d%32s%f" - list of option parameters
+    name - "-option -o -opt -OPT" - list of alternative names
+    fmt - "%d%32s%f" - list of option parameters
           %d - an integer - argument int *
           %f - a real - argument double *
           %s - a string - argument char *
           strings should take a buffer length qualifer (default 256)
 
-Returns the numebr of arguments consumed. However it's not normally
+Returns the number of arguments consumed. However it's not normally
 necessary to check for errors. Call opt_error after parsing all the
 options.
 
@@ -45,7 +45,7 @@ options.
     int opt_error(OPTIONS *opt, FILE *fp);
 
 Returns non-zero if the options parser encountered an error. It then
-writes an human-reaable error report to the file. So normally you would
+writes an human-readable error report to the file. So normally you would
 pass stderr as the fp argument. It can be null if you don't want to
 report the error to the user.
 
@@ -92,8 +92,8 @@ names). You must call after parsing the options.
         opt = 0;
 
         if (width <= 0)
-           fprintf(stderr, "width must be posit've\n"); // It won't sanity
-              // test options of you
+           fprintf(stderr, "width must be positive\n"); // It won't sanity
+              // test options for you
 
         dowork(filename, width, name, quality);
 
