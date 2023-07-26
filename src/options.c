@@ -12,15 +12,15 @@
 
 typedef struct
 {
-  int argc;             /* number of arguments */
-  char **argv;          /* argument list */
-  char *flags;          /* set of allowed one char flags */
-  int *used;            /* flag for each argument read */
-  int firsttouched;     /* set if the first arguement interpreted as flags */
-  int firstflag;        /* set if the first arguement can be flags */
-  int *firstused;       /* set if each character of first arguement read */
-  int error;            /* set if the parser encounters an error */
-  char errstr[1024];    /* parser error text */
+    int argc;             /* number of arguments */
+    char **argv;          /* argument list */
+    char *flags;          /* set of allowed one char flags */
+    int *used;            /* flag for each argument read */
+    int firsttouched;     /* set if the first arguement interpreted as flags */
+    int firstflag;        /* set if the first arguement can be flags */
+    int *firstused;       /* set if each character of first arguement read */
+    int error;            /* set if the parser encounters an error */
+    char errstr[1024];    /* parser error text */
 } OPTIONS;
 
 OPTIONS *options(int argc, char **argv, char *flags);
@@ -58,54 +58,54 @@ static char *mystrdup(const char *str);
  */
 OPTIONS *options(int argc, char **argv, char *flags)
 {
-  OPTIONS *answer;
-  int i;
+    OPTIONS *answer;
+    int i;
 
-  answer = malloc(sizeof(OPTIONS));
-  if(!answer)
-    goto error_exit;
-  answer->argc = argc;
-  answer->argv = 0;
-  answer->used = 0;
-  answer->firstused = 0;
-  answer->firsttouched = 0;
-  answer->error = 0;
-  answer->errstr[0] = 0;
-  answer->flags = 0;
-
-  answer->argv = dupargs(argv);
-  if(!answer->argv)
-    goto error_exit;
-
-  answer->used = malloc(argc * sizeof(int));
-  if(!answer->used)
-    goto error_exit;
-  if(argc > 1 && argv[1])
-  {
-    answer->firstused = malloc(strlen(argv[1]) * sizeof(int) );
-    if(!answer->firstused)
-      goto error_exit;
-    memset(answer->firstused, 0, strlen(argv[1]) * sizeof(int));
-  }
-  
-  if(flags)
-  {
-    answer->flags = mystrdup(flags);
-    if(!answer->flags)
-      goto error_exit;
-  }
-  else
+    answer = malloc(sizeof(OPTIONS));
+    if (!answer)
+        goto error_exit;
+    answer->argc = argc;
+    answer->argv = 0;
+    answer->used = 0;
+    answer->firstused = 0;
+    answer->firsttouched = 0;
+    answer->error = 0;
+    answer->errstr[0] = 0;
     answer->flags = 0;
-  
-  answer->firstflag = canbeflags(argv[1], flags);
 
-  for(i=0;i<argc;i++)
-    answer->used[i]  = 0;
-  return answer;
+    answer->argv = dupargs(argv);
+    if(!answer->argv)
+        goto error_exit;
+
+    answer->used = malloc(argc * sizeof(int));
+    if (!answer->used)
+        goto error_exit;
+    if (argc > 1 && argv[1])
+    {
+        answer->firstused = malloc(strlen(argv[1]) * sizeof(int) );
+        if (!answer->firstused)
+            goto error_exit;
+        memset(answer->firstused, 0, strlen(argv[1]) * sizeof(int));
+    }
+  
+    if (flags)
+    {
+        answer->flags = mystrdup(flags);
+        if (!answer->flags)
+            goto error_exit;
+    }
+    else
+        answer->flags = 0;
+  
+    answer->firstflag = canbeflags(argv[1], flags);
+
+    for(i=0;i<argc;i++)
+        answer->used[i]  = 0;
+    return answer;
 
  error_exit:
-  killoptions(answer);
-  return 0;
+    killoptions(answer);
+    return 0;
 }
 
 /*
@@ -113,21 +113,21 @@ OPTIONS *options(int argc, char **argv, char *flags)
  */
 void killoptions(OPTIONS *opt)
 {
-  int i;
+    int i;
 
-  if(opt)
-  {
-    if(opt->argv)
+    if (opt)
     {
-      for(i=0;i<opt->argc;i++)
-        free(opt->argv[i]);
-      free(opt->argv);
+        if (opt->argv)
+        {
+            for (i=0;i<opt->argc;i++)
+                free(opt->argv[i]);
+            free(opt->argv);
+        }
+        free(opt->flags);
+        free(opt->firstused);
+        free(opt->used);
+        free(opt);
     }
-    free(opt->flags);
-    free(opt->firstused);
-    free(opt->used);
-    free(opt);
-  }
 }
 
 /*
@@ -155,46 +155,46 @@ void killoptions(OPTIONS *opt)
  */
 int opt_get(OPTIONS *opt, char *name, char *fmt, ...)
 {
-  int i;
-  int j;
-  va_list ret;
-  int answer = 0;
-  int idx;
+    int i;
+    int j;
+    va_list ret;
+    int answer = 0;
+    int idx;
 
-  if(!opt || opt->argc < 2)
-    return 0;
+    if (!opt || opt->argc < 2)
+        return 0;
 
-  va_start(ret, fmt);
-  if(opt->firstflag && firstopt(opt->argv[1], name) && empty(fmt) )
-  {
-    idx = strchr(opt->argv[1], oneletteropt(name)) - opt->argv[1];
-    if(opt->firstused[idx])
-      seterror(opt, "Duplicate option -%c", oneletteropt(name));
-    opt->firstused[idx] = 1;
-    opt->firsttouched = 1;
-    opt->used[1] = 1;
-    answer = 1;
-  }
-  else
-  {
-    for(i=1;i<opt->argc;i++)
-    {      
-      if(contains(name, opt->argv[i]))
-      {
-        answer = parseoptionsv(opt, i, fmt, ret) + 1;
-        for(j=i;j<i+answer;j++)
-	{
-          if(opt->used[j])
-            seterror(opt, "Bad options string %s", opt->argv[j]);
-          opt->used[j] = 1;
-	}
-        break;
-      }
+    va_start(ret, fmt);
+    if (opt->firstflag && firstopt(opt->argv[1], name) && empty(fmt) )
+    {
+        idx = strchr(opt->argv[1], oneletteropt(name)) - opt->argv[1];
+        if (opt->firstused[idx])
+            seterror(opt, "Duplicate option -%c", oneletteropt(name));
+        opt->firstused[idx] = 1;
+        opt->firsttouched = 1;
+        opt->used[1] = 1;
+        answer = 1;
     }
-  }
-  va_end(ret);
+    else
+    {
+        for (i=1;i<opt->argc;i++)
+        {
+            if(contains(name, opt->argv[i]))
+            {
+                answer = parseoptionsv(opt, i, fmt, ret) + 1;
+                for (j=i;j<i+answer;j++)
+                {
+                    if (opt->used[j])
+                        seterror(opt, "Bad options string %s", opt->argv[j]);
+                    opt->used[j] = 1;
+                }
+                break;
+            }
+        }
+    }
+    va_end(ret);
 
-  return answer;  
+    return answer;
 }
 
 /*
@@ -211,17 +211,17 @@ int opt_get(OPTIONS *opt, char *name, char *fmt, ...)
  */
 int opt_error(OPTIONS *opt, FILE *fp)
 {
-  if(!opt)
-  {
-    if(fp)
-      fprintf(fp, "Out of memory\n");
-    return -1;   
-  }
-  checkunusedoptions(opt);
-  if(opt->error && fp)
-    fprintf(fp, "%s\n", opt->errstr); 
+    if (!opt)
+    {
+        if (fp)
+            fprintf(fp, "Out of memory\n");
+        return -1;
+    }
+    checkunusedoptions(opt);
+    if (opt->error && fp)
+        fprintf(fp, "%s\n", opt->errstr);
 
-  return opt->error;
+    return opt->error;
 }
 
 /*
@@ -232,21 +232,20 @@ int opt_error(OPTIONS *opt, FILE *fp)
  */
 int opt_Nargs(OPTIONS *opt)
 {
-  int answer = 0;
-  int i;
+    int answer = 0;
+    int i;
 
-  if(!opt)
-    return 0;
-  for(i=opt->argc-1;i >= 1; i--)
-  {
-    if(!opt->used[i])
-      answer++;
-    else
-      break;
-  }
+    if (!opt)
+        return 0;
+    for (i=opt->argc-1;i >= 1; i--)
+    {
+        if (!opt->used[i])
+            answer++;
+        else
+            break;
+    }
 
-  return answer;
-  
+    return answer;
 }
 
 /*
@@ -257,18 +256,18 @@ int opt_Nargs(OPTIONS *opt)
  */
 char *opt_arg(OPTIONS *opt, int index)
 {
-  char *answer;
-  int N;
+    char *answer;
+    int N;
 
-  if(!opt)
-    return 0;
-  N = opt_Nargs(opt);
-  if(index >= N)
-    return 0;
-  answer = mystrdup(opt->argv[opt->argc - N + index]);
-  if(!answer)
-    seterror(opt, "Out of memory\n");
-  return answer;
+    if (!opt)
+        return 0;
+    N = opt_Nargs(opt);
+    if (index >= N)
+        return 0;
+    answer = mystrdup(opt->argv[opt->argc - N + index]);
+    if (!answer)
+        seterror(opt, "Out of memory\n");
+    return answer;
 }
 
 /*
@@ -276,32 +275,32 @@ char *opt_arg(OPTIONS *opt, int index)
  */
 static void checkunusedoptions(OPTIONS *opt)
 {
-  int i;
-  int N;
+    int i;
+    int N;
 
-  N = opt_Nargs(opt);
-  for(i=1;i<opt->argc - N; i++)
-    if(!opt->used[i])
-      seterror(opt, "Unrecognised or duplicate option %s.", opt->argv[i]);
+    N = opt_Nargs(opt);
+    for (i=1;i<opt->argc - N; i++)
+        if (!opt->used[i])
+            seterror(opt, "Unrecognised or duplicate option %s.", opt->argv[i]);
   /* this can happen if caller does not parse all flags */
-  if(opt->firsttouched)
-  {
-    for(i=1;opt->argv[1][i];i++)
-      if(!opt->firstused[i])
-        seterror(opt, "Illegal flag -%c\n", opt->argv[1][i]);
-  }
+    if (opt->firsttouched)
+    {
+        for (i=1;opt->argv[1][i];i++)
+            if (!opt->firstused[i])
+                seterror(opt, "Illegal flag -%c\n", opt->argv[1][i]);
+    }
 
   /* now check for illegal flags */
-  if(N > 0 && N == opt->argc - 1 && opt->argv[1][0] == '-' && opt->flags)
-  {
-    for(i=1;opt->argv[1][i];i++)
-      if(!strchr(opt->flags, opt->argv[1][i]))
-        seterror(opt, "Unrecognised flag -%c\n", opt->argv[1][i]); 
-  }
+    if (N > 0 && N == opt->argc - 1 && opt->argv[1][0] == '-' && opt->flags)
+    {
+        for (i=1;opt->argv[1][i];i++)
+            if (!strchr(opt->flags, opt->argv[1][i]))
+                seterror(opt, "Unrecognised flag -%c\n", opt->argv[1][i]);
+    }
  
   /* check if the first argument looks like an option */
-  if(N > 0 && opt->argv[opt->argc-N][0] == '-')
-    seterror(opt, "Unrecognised or duplicate option %s.", opt->argv[opt->argc-N]);
+    if (N > 0 && opt->argv[opt->argc-N][0] == '-')
+        seterror(opt, "Unrecognised or duplicate option %s.", opt->argv[opt->argc-N]);
 }
 
 /*
@@ -314,92 +313,92 @@ static void checkunusedoptions(OPTIONS *opt)
  */
 static int parseoptionsv(OPTIONS *opt, int idx, char *fmt, va_list ret)
 {
-  char *ptr = fmt;
-  int answer = 0;
-  char *sptr;
-  int *iptr;
-  double *fptr;
-  char *end;
-  long len;
-  long ival;
+    char *ptr = fmt;
+    int answer = 0;
+    char *sptr;
+    int *iptr;
+    double *fptr;
+    char *end;
+    long len;
+    long ival;
 
-  if(!fmt)
-    return 0;
+    if (!fmt)
+        return 0;
 
-  while(*ptr)
-  {
-    if(*ptr == '%')
+    while (*ptr)
     {
-      len = 0;
-      if(isdigit(ptr[1]))
-      {
-        len = strtol(ptr + 1, &end, 10);
-        ptr = end-1;
-      }
-      switch(ptr[1])
-      {
-        case 's':
-          sptr = va_arg(ret, char *);
-          if(len == 0)
-            len = 256;
-          if(idx + answer + 1 >= opt->argc)
-	  {
-            seterror(opt, "Option %s expects an argument\n", opt->argv[idx]);
-            return 0; 
-	  } 
-          if(strlen(opt->argv[idx + answer + 1]) < len)
-            strcpy(sptr, opt->argv[idx + answer + 1]);
-	  else
-	  {
-            seterror(opt, "Option %s argument too long\n", opt->argv[idx]);
-            return 0;
-	  }
-          break;
-        case 'd':
-          iptr = va_arg(ret, int *);
-          if(idx + answer + 1 >= opt->argc)
-	  {
-            seterror(opt, "Option %s expects an integer argument\n", opt->argv[idx]);
-            return 0; 
-	  } 
+        if (*ptr == '%')
+        {
+            len = 0;
+            if (isdigit(ptr[1]))
+            {
+                len = strtol(ptr + 1, &end, 10);
+                ptr = end-1;
+            }
+            switch (ptr[1])
+            {
+                case 's':
+                    sptr = va_arg(ret, char *);
+                    if (len == 0)
+                        len = 256;
+                    if (idx + answer + 1 >= opt->argc)
+                    {
+                        seterror(opt, "Option %s expects an argument\n", opt->argv[idx]);
+                        return 0;
+                    }
+                    if (strlen(opt->argv[idx + answer + 1]) < len)
+                        strcpy(sptr, opt->argv[idx + answer + 1]);
+                    else
+                    {
+                        seterror(opt, "Option %s argument too long\n", opt->argv[idx]);
+                        return 0;
+                    }
+                    break;
+                case 'd':
+                    iptr = va_arg(ret, int *);
+                    if (idx + answer + 1 >= opt->argc)
+                    {
+                        seterror(opt, "Option %s expects an integer argument\n", opt->argv[idx]);
+                        return 0;
+                    }
         
-          ival = strtol(opt->argv[idx + answer + 1], &end, 10);
-          if(ival < INT_MIN || ival > INT_MAX || ival == LONG_MIN || ival == LONG_MAX)
-	  {
-            seterror(opt, "Option %s integer out of range\n", opt->argv[idx]);
-            return 0;
-          }
-          *iptr = (int) ival;
-	  if(*end)
-	  {
-            seterror(opt, "Option %s must be an integer\n", opt->argv[idx]);
-            return 0;
-	  }
-          break;
-        case 'f':
-          fptr = va_arg(ret, double *);
-          if(idx + answer + 1 >= opt->argc)
-	  {
-            seterror(opt, "Option %s expects a numerical argument\n", opt->argv[idx]);
-            return 0; 
-	  } 
+                    ival = strtol(opt->argv[idx + answer + 1], &end, 10);
+                    if (ival < INT_MIN || ival > INT_MAX || ival == LONG_MIN || ival == LONG_MAX)
+                    {
+                        seterror(opt, "Option %s integer out of range\n", opt->argv[idx]);
+                        return 0;
+                    }
+                    *iptr = (int) ival;
+                    if (*end)
+                    {
+                        seterror(opt, "Option %s must be an integer\n", opt->argv[idx]);
+                        return 0;
+                    }
+                    break;
+                case 'f':
+                    fptr = va_arg(ret, double *);
+                    if (idx + answer + 1 >= opt->argc)
+                    {
+                        seterror(opt, "Option %s expects a numerical argument\n", opt->argv[idx]);
+                        return 0;
+                    }
         
-          *fptr = strtod(opt->argv[idx + answer + 1], &end);
-	  if(*end)
-	  {
-            seterror(opt, "Option %s must be a number\n", opt->argv[idx]);
-            return 0;
-	  }
-          break;
-        default:
-	  assert(0);
-      }
-      ptr+=2;
-      answer++;
+                    *fptr = strtod(opt->argv[idx + answer + 1], &end);
+                    if (*end)
+                    {
+                        seterror(opt, "Option %s must be a number\n", opt->argv[idx]);
+                        return 0;
+                    }
+                    break;
+                default:
+                    assert(0);
+            }
+            ptr+=2;
+            answer++;
+        }
+        else
+            assert(0);
     }
-    else 
-      assert(0);
-  } 
 
   return answer;
 } 
@@ -412,15 +411,15 @@ static int parseoptionsv(OPTIONS *opt, int idx, char *fmt, va_list ret)
  */
 static void seterror(OPTIONS *opt, char *fmt, ...)
 {
-  va_list ap;
+    va_list ap;
 
-  va_start(ap, fmt); 
-  if(!opt->error)
-  {
-    vsnprintf(opt->errstr, 1024, fmt, ap);
-    opt->error = 1;
-  }
-  va_end(ap);
+    va_start(ap, fmt);
+    if (!opt->error)
+    {
+        vsnprintf(opt->errstr, 1024, fmt, ap);
+        opt->error = 1;
+    }
+    va_end(ap);
 
 }
 
@@ -434,29 +433,29 @@ static void seterror(OPTIONS *opt, char *fmt, ...)
  */
 static int canbeflags(char *argv1, char *flags)
 {
-  int i;
+    int i;
 
-  if(!argv1)
-    return 0;
-  if(argv1[0] == 0)
-    return 0;
-  if(!flags)
-    return 0;
-  if(flags[0] == 0)
-    return 0;
+    if (!argv1)
+        return 0;
+    if (argv1[0] == 0)
+        return 0;
+    if (!flags)
+        return 0;
+    if (flags[0] == 0)
+        return 0;
 
-  if(argv1[0] != '-')
-    return 0;
+    if (argv1[0] != '-')
+        return 0;
 
-  for(i=0;argv1[i];i++)
-  {
-    if(!strchr(flags, argv1[i]))
-      return 0;
-    if(strchr(argv1 + i + 1, argv1[i]))
-      return 0;
-  }
+    for (i=0;argv1[i];i++)
+    {
+        if (!strchr(flags, argv1[i]))
+            return 0;
+        if (strchr(argv1 + i + 1, argv1[i]))
+            return 0;
+    }
 
-  return 1; 
+    return 1;
 }
  
 /*
@@ -468,14 +467,14 @@ static int canbeflags(char *argv1, char *flags)
  */
 static int firstopt(char *argv1, char *name)
 {
-  int ch;
+    int ch;
 
-  if(!argv1)
+    if (!argv1)
+        return 0;
+    ch = oneletteropt(name);
+    if (ch && argv1[0] == '-' && strchr(argv1, ch))
+        return 1;
     return 0;
-  ch = oneletteropt(name);
-  if(ch && argv1[0] == '-' && strchr(argv1, ch))
-    return 1;  
-  return 0;
 }
 
 /*
@@ -486,17 +485,26 @@ static int firstopt(char *argv1, char *name)
  */
 static int contains(char *name, char *opt)
 {
-  char *sub;
-
-  sub = strstr(name, opt);
-  if(!sub)
+    size_t optlen;
+    int i;
+   
+    if (!strcmp(name, opt))
+        return 1;
+    optlen = strlen(opt);
+    if (!strncmp(name, opt, optlen) && isspace((unsigned char)name[optlen]))
+        return 1;
+  
+    for (i = 0; name[i]; i++)
+    {
+        if (isspace((unsigned char) name[i]))
+        {
+            if (!strncmp(name + i + 1, opt, optlen) && (isspace((unsigned char) name[i+optlen+1])
+              || name[i+optlen+1] == 0))
+              return 1;
+        }
+    }
+    
     return 0;
-  if(sub[strlen(opt)] == 0 || isspace(sub[strlen(opt)]) )
-  {
-    if(sub == name || isspace(*(sub-1)) )
-       return 1;
-  }
-  return 0;
 }
 
 /*
@@ -507,52 +515,55 @@ static int contains(char *name, char *opt)
  */
 static int oneletteropt(char *name)
 {
-  char *ptr;
+    char *ptr;
   
-  ptr = name;
-  while( (ptr = strchr(ptr, '-')) )
-  {
-    if(isalnum(ptr[1]) && (isspace(ptr[2]) || ptr[2] == 0) )
-      return ptr[1];
-    ptr++;
-  } 
-  return 0;
+    ptr = name;
+    while ((ptr = strchr(ptr, '-')))
+    {
+      if (isalnum(ptr[1]) && (isspace(ptr[2]) || ptr[2] == 0) )
+          return ptr[1];
+      ptr++;
+    }
+    
+    return 0;
 }
 
 /*
   duplicate the argument string
   Params: argv - null-termianted list of strings
-  Returns: amlloced list of malloced strings
+  Returns: malloced list of malloced strings
  */
 static char **dupargs(char **argv)
 {
-  int len;
-  char **answer;
-  int i;
+    int len;
+    char **answer;
+    int i;
  
-  for(len = 0;argv[len];len++);
+    for (len = 0;argv[len];len++);
 
-  answer = malloc( (len + 1) * sizeof(char *));
-  for(i=0;i<=len;i++)
-    answer[i] = 0;
+    answer = malloc( (len + 1) * sizeof(char *));
+    if (!answer)
+        goto error_exit;
+    for (i=0;i<=len;i++)
+        answer[i] = 0;
    
-  for(i=0;i<len;i++)
-  {
-    answer[i] = mystrdup(argv[i]);
-    if(!answer[i])
-      goto error_exit;
-  }
+    for (i=0;i<len;i++)
+    {
+        answer[i] = mystrdup(argv[i]);
+        if (!answer[i])
+            goto error_exit;
+    }
 
-  return answer;
+    return answer;
  error_exit:
-  if(answer)
-  {
-    for(i=0;i<len;i++)
-      free(answer[i]);
-    free(answer);
-  }
+    if (answer)
+    {
+        for (i=0;i<len;i++)
+            free(answer[i]);
+        free(answer);
+    }
 
-  return 0;  
+    return 0;
 }
 
 /*
@@ -560,11 +571,11 @@ static char **dupargs(char **argv)
  */
 static int empty(const char *str)
 {
-  if(str == 0)
-    return 1;
-  if(str[0] == 0)
-    return 1;
-  return 0;
+    if (str == 0)
+        return 1;
+    if( str[0] == 0)
+        return 1;
+    return 0;
 }
 
 /*
@@ -572,44 +583,44 @@ static int empty(const char *str)
  */
 static char *mystrdup(const char *str)
 {
-  char *answer;
+    char *answer;
 
-  answer = malloc(strlen(str) + 1);
-  if(answer)
-    strcpy(answer, str);
+    answer = malloc(strlen(str) + 1);
+    if (answer)
+        strcpy(answer, str);
 
-  return answer;
+    return answer;
 }
 
 int optionsmain(int argc, char **argv)
 {
-  OPTIONS *opt;
-  int Nargs;
-  int i;
-  char mess[256];
-  int age = -1;
-  int b = 0;
+    OPTIONS *opt;
+    int Nargs;
+    int i;
+    char mess[256];
+    int age = -1;
+    int b = 0;
 
-  opt = options(argc, argv, "-abc");
+    opt = options(argc, argv, "-abc");
   
-  strcpy(mess, "isdead");
-  opt_get(opt, "-fred -a", "%32s", mess);
-  opt_get(opt, "-age -AGE", "%d", &age);    
-  b= opt_get(opt, "-b", 0);
+    strcpy(mess, "isdead");
+    opt_get(opt, "-fred -a", "%32s", mess);
+    opt_get(opt, "-age -AGE", "%d", &age);
+    b= opt_get(opt, "-b", 0);
     
 
-  printf("mess %s\n", mess);
-  printf("age %d\n", age);
-  printf("b %d\n", b);
+    printf("mess %s\n", mess);
+    printf("age %d\n", age);
+    printf("b %d\n", b);
 
-  Nargs = opt_Nargs(opt);
-  for(i=0;i<Nargs;i++)
-    printf("argument %d ***%s***\n", i, opt_arg(opt, i));
+    Nargs = opt_Nargs(opt);
+    for (i=0;i<Nargs;i++)
+        printf("argument %d ***%s***\n", i, opt_arg(opt, i));
 
-  if(opt_error(opt, stderr))
-    fprintf(stderr, "Bad inputs\n");  
-  killoptions(opt);
+    if (opt_error(opt, stderr))
+        fprintf(stderr, "Bad inputs\n");
+    killoptions(opt);
 
-  printf("%d ", contains("-fred", "-fred"));
-  return 0;
+    printf("%d ", contains("-fred", "-fred"));
+    return 0;
 }
